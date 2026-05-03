@@ -1,3 +1,6 @@
+if not os.path.exists("yolov5"):
+    os.system("git clone https://github.com/ultralytics/yolov5")
+
 import streamlit as st
 import numpy as np
 import cv2
@@ -8,6 +11,9 @@ from ultralytics import YOLO
 
 # YOLOv5
 import sys
+import os
+
+
 sys.path.append("yolov5")
 
 from models.common import DetectMultiBackend
