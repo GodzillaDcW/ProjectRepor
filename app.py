@@ -1,6 +1,12 @@
 if not os.path.exists("yolov5"):
     os.system("git clone https://github.com/ultralytics/yolov5")
+import urllib.request
 
+MODEL_URL = "https://huggingface.co/ArjunDcw/helmet-model/resolve/main/best.pt"
+
+if not os.path.exists("best.pt"):
+    print("Downloading model...")
+    urllib.request.urlretrieve(MODEL_URL, "best.pt")
 import streamlit as st
 import numpy as np
 import cv2
@@ -27,7 +33,7 @@ st.title("MTV Traffic Violation Detection")
 vehicle_model = YOLO("yolov8n.pt")
 
 device = select_device('cpu')
-helmet_model = DetectMultiBackend("yolov5/best.pt", device=device)
+helmet_model = DetectMultiBackend("best.pt", device=device)
 helmet_model.eval()
 
 uploaded_file = st.file_uploader("Upload an Image", type=["jpg", "png", "jpeg"])
