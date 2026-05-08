@@ -1,1 +1,166 @@
-A simple readme
+# 🪖 MTV Helmet Violation Detection
+
+> **A customized ensemble model for automated traffic violation detection on motorized two-wheelers (MTVs) using YOLOv8 + YOLOv5 and a Streamlit web interface.**
+
+![Python](https://img.shields.io/badge/Python-3.8+-3776AB?style=flat&logo=python&logoColor=white)
+![Streamlit](https://img.shields.io/badge/Streamlit-App-FF4B4B?style=flat&logo=streamlit&logoColor=white)
+![YOLOv8](https://img.shields.io/badge/YOLOv8-Ultralytics-00BFFF?style=flat)
+![PyTorch](https://img.shields.io/badge/PyTorch-Deep%20Learning-EE4C2C?style=flat&logo=pytorch&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green?style=flat)
+
+---
+
+## 📋 Table of Contents
+
+- [Overview](#overview)
+- [How It Works](#how-it-works)
+- [Tech Stack](#tech-stack)
+- [Getting Started](#getting-started)
+- [Usage](#usage)
+- [Limitations](#limitations)
+- [Future Work](#future-work)
+
+---
+
+## Overview
+
+The increasing number of motorized two-wheelers on roads has led to a rise in helmet-related traffic violations. Manual monitoring is time-consuming and inefficient.
+
+This project provides a **web-based intelligent violation detection system** that automatically identifies helmet violations from uploaded images. It combines a multi-stage YOLOv8 + YOLOv5 detection pipeline with a simple Streamlit interface — no technical knowledge required to use it.
+
+---
+
+## How It Works
+
+The system runs a six-stage detection pipeline on each uploaded image:
+
+```
+Image Upload
+     │
+     ▼
+YOLOv8 Object Detection  ──→  Motorcycle boxes
+     │                    └──→  Person boxes
+     ▼
+YOLOv5 Helmet Detection (full 640×640 image)
+     │   Returns "helmet" / "no-helmet" boxes + confidence
+     ▼
+Spatial Association
+     │   IoU overlap: motorcycle ↔ person ↔ helmet box
+     ▼
+Violation Classification
+     │   Helmet ✅  or  No Helmet ❌  per rider
+     ▼
+Annotated Output + Violation Banner
+```
+
+**Step 1 — Image Upload**
+The user uploads a traffic image (JPG, JPEG, or PNG) via the Streamlit interface.
+
+**Step 2 — Motorcycle & Rider Detection**
+`yolov8n.pt` detects all motorcycles and persons in the frame, returning bounding box coordinates for each.
+
+**Step 3 — Helmet Detection**
+A custom YOLOv5 model (`best.pt`, sourced from Hugging Face) runs inference on the full image resized to 640×640 — *not on cropped regions* — and returns `helmet` or `no-helmet` detections with confidence scores.
+
+**Step 4 — Spatial Association**
+Helmet detections are matched to rider detections via bounding-box IoU overlap. Each motorcycle is linked to the nearest overlapping person, and helmet status is resolved from the intersecting helmet box.
+
+**Step 5 — Violation Classification**
+Riders without a detected helmet are flagged as violations. Each motorcycle in the frame receives an individual status label, and a global violation flag is set.
+
+**Step 6 — Output**
+The processed image is displayed with colour-coded bounding boxes (green = helmet, red = no helmet), status labels, and a summary banner.
+
+---
+
+## Tech Stack
+
+| Component | Technology |
+|---|---|
+| Language | Python 3.8+ |
+| Web Interface | Streamlit |
+| Object Detection | YOLOv8 (ultralytics) |
+| Helmet Detection | YOLOv5 (custom fine-tuned `best.pt`) |
+| Deep Learning | PyTorch |
+| Image Processing | OpenCV |
+| Image Handling | Pillow (PIL) |
+| Numerical Computation | NumPy |
+| Deployment | Streamlit Cloud / Hugging Face Spaces |
+| Version Control | GitHub |
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Python 3.8+
+- Git
+
+### Installation
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/GodzillaDcW/ProjectRepor.git
+cd mtv-helmet-detection
+
+# 2. Install dependencies
+pip install -r requirements.txt
+
+# 3. The app will auto-download the YOLOv5 repo and best.pt model on first run
+```
+
+### Run the app
+
+```bash
+streamlit run app.py
+```
+```
+THIS BELOW LINK ONLY WORKS WHEN APP IS TURNED ON FROM STREAMLIT ACC,
+ITS DISABLE AUTOMATICALLY IF INACTIVE FOR MORE THAN 2 HOURS
+```
+
+https://projectrepor-fjfh5wc6mh34bwjom2drcj.streamlit.app/
+
+---
+
+## Usage
+
+1. Open the app in your browser.
+2. Click **Browse files** and upload a traffic image (JPG, PNG, or JPEG).
+3. The app will process the image and display:
+   - Bounding boxes around detected motorcycles and riders
+   - A `Helmet ✅` or `No Helmet ❌` label per motorcycle
+   - A **Violation Detected** or **No Violation** banner
+
+---
+
+## Limitations
+
+- Detection accuracy depends on image quality and lighting conditions.
+- The model (derived from a Construction PPE pretrained model) struggles with darker-coloured helmets in low-light conditions.
+- Side-angle helmet views are often missed.
+- Occluded helmets may not be detected reliably.
+- Only static image uploads are supported — video is not yet implemented.
+- Inference may be slow on low-end hardware due to the dual-model pipeline.
+
+---
+
+## Future Work
+
+- [ ] Real-time video processing support
+- [ ] Key-frame extraction for efficient video analysis
+- [ ] Retraining on traffic-specific helmet datasets for improved accuracy
+- [ ] Detection of additional violation types (e.g. phone use, overloading)
+- [ ] Lightweight model variants for edge device deployment
+
+---
+
+## Conclusion
+
+This project demonstrates a practical application of computer vision for automated road safety enforcement. Despite current limitations, the dual-model ensemble provides a scalable foundation for building more comprehensive intelligent traffic surveillance systems.
+
+---
+
+*Built with YOLOv8 · YOLOv5 · Streamlit · PyTorch*
+
